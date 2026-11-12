@@ -42,6 +42,43 @@ def get_weather(city: str) -> dict:
 
     return response.json()["current"]
 
+def get_stock_price(symbol: str) -> dict:
+    """查询股票最新行情，例如 AAPL、TSLA、NVDA。"""
+
+    api_key = os.getenv("ALPHA_VANTAGE_API_KEY")
+
+    url = "https://www.alphavantage.co/query"
+
+    params = {
+        "function": "GLOBAL_QUOTE",
+        "symbol": symbol,
+        "apikey": api_key
+    }
+
+    response = requests.get(url, params=params, timeout=15)
+    response.raise_for_status()
+
+    data = response.json()
+
+    if "Global Quote" not in data:
+        return {
+            "error": data.get(
+                "Note",
+                data.get("Information", data.get("Error Message", "暂时无法获取行情"))
+            )
+        }
+
+    quote = data["Global Quote"]
+
+    return {
+        "股票代码": quote.get("01. symbol"),
+        "最新价格": quote.get("05. price"),
+        "涨跌额": quote.get("09. change"),
+        "涨跌幅": quote.get("10. change percent"),
+        "成交量": quote.get("06. volume"),
+        "交易日期": quote.get("07. latest trading day")
+    }
+
 
 #创建聊天记录存储空间
 if "messages" not in st.session_state:
@@ -59,14 +96,22 @@ if prompt:
 
     #调用 Gemini AI
     try:
+        history = [
+            {
+
+                "role": "user" if message["role"] == "user" else "model",
+                "parts": [{"text": message["content"]}]
+            }
+            for message in st.session_state.messages
+        ]
+
         response = client.models.generate_content(
             model="gemini-3.6-flash",
-            contents=prompt,
+            contents=history,
             config=genai.types.GenerateContentConfig(
-                tools=[get_weather]
+                tools=[get_weather, get_stock_price]
             )
         )
-
         ai_reply = response.text
 
         st.session_state.messages.append({
@@ -81,3 +126,4 @@ if prompt:
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
+
