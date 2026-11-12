@@ -11,6 +11,14 @@ st.markdown(
 )
 st.badge("Welcome", icon=":material/check:", color="green")
 
+st.markdown("""
+本网站功能
+🌤️ 天气查询：通过天气 API 获取实时天气。
+
+📈 股票查询：通过 Alpha Vantage API 获取股票行情。
+""")
+
+
 if "favorite" not in st.session_state:
     st.session_state.favorite = False
 
