@@ -1,3 +1,33 @@
+import streamlit as st
+
+#萌萌小白狗背景
+st.markdown(
+    """
+    <style>
+    .stApp {
+        background-image: url("https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=1600");
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+    }
+
+    /* 让聊天区域半透明，字更清楚 /
+    [data-testid="stChatMessageContainer"], 
+    .stChatFloatingInputContainer,
+    section[data-testid="stSidebar"] {
+        background-color: rgba(0, 0, 0, 0.35);
+        border-radius: 12px;
+    }
+
+    / 输入框保持清晰 */
+    .stChatInputContainer {
+        background-color: rgba(20, 20, 20, 0.8) !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 import requests
 from langchain.tools import tool
 from langgraph.checkpoint.memory import InMemorySaver
